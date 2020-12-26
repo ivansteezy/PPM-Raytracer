@@ -5,8 +5,24 @@
 #include "Color.h"
 #include "Ray.h"
 
+
+bool RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<double>& ray)
+{
+    auto oc = ray.GetOrigin() - center;                                                  //in the equation (A-C)
+    auto a  = rtcr::Vector3<double>::DotProduct(ray.GetDirection(), ray.GetDirection()); //in the equation (b°b)
+    auto b  = 2.0 * rtcr::Vector3<double>::DotProduct(oc, ray.GetDirection());           //in the equation 2b ° (A-C)
+    auto c  = rtcr::Vector3<double>::DotProduct(oc, oc) - (radius * radius);             //in the equation (A-C)°(A-C) - r^2
+    auto discriminant = (b * b) - (4 * a * c);                                           //chicharronera
+    return discriminant > 0;
+}
+
 rtcr::Color MapRayColor(const rtcr::Ray<double>& ray)
 {
+    if (RayHitSphere(rtcr::Point3(0, 0, -1), 0.5, ray))
+    {
+        return rtcr::Color(0, 0, 1);
+    }
+
     auto unitDirection = rtcr::Vector3<double>::UnitVector(ray.GetDirection());
     auto t = 0.5 * (unitDirection.GetY() + 1.0);
     return (1.0 - t) * rtcr::Color(1.0, 1.0, 1.0) + (t * rtcr::Color(1.0, 0.0, 1.0));
@@ -44,5 +60,5 @@ int main()
     }
     of.close();
 
-    std::cout << "Done" << std::endl;
+    std::cout << "Done!" << std::endl;
 }
