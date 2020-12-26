@@ -29,7 +29,8 @@ int main()
     auto lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - rtcr::Vector3<double>(0, 0, focalLength);
 
     std::ofstream of;
-
+    
+    //TODO: find a way to render via multithread
     of.open("image.ppm", std::ios::app);
     of << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
     for (int j = imageHeight - 1; j >= 0; --j) {
