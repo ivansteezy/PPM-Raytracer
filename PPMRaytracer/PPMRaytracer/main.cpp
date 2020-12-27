@@ -1,3 +1,4 @@
+﻿// たのしく はじめましよう!
 #include <iostream>
 #include <fstream>
 
@@ -9,9 +10,9 @@
 double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<double>& ray)
 {
     auto oc = ray.GetOrigin() - center;                                                  //in the equation (A-C)
-    auto a  = rtcr::Vector3<double>::DotProduct(ray.GetDirection(), ray.GetDirection()); //in the equation (b�b)
-    auto b  = 2.0 * rtcr::Vector3<double>::DotProduct(oc, ray.GetDirection());           //in the equation 2b � (A-C)
-    auto c  = rtcr::Vector3<double>::DotProduct(oc, oc) - (radius * radius);             //in the equation (A-C)�(A-C) - r^2
+    auto a  = rtcr::Vector3<double>::DotProduct(ray.GetDirection(), ray.GetDirection()); //in the equation (b°b)
+    auto b  = 2.0 * rtcr::Vector3<double>::DotProduct(oc, ray.GetDirection());           //in the equation 2b ° (A-C)
+    auto c  = rtcr::Vector3<double>::DotProduct(oc, oc) - (radius * radius);             //in the equation (A-C)°(A-C) - r^2
     auto discriminant = (b * b) - (4 * a * c);                                           //chicharronera
 
     return discriminant < 0 ? -1.0 : (-b - std::sqrt(discriminant)) / (2.0 * a);
@@ -20,11 +21,11 @@ double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<d
 rtcr::Color MapRayColor(const rtcr::Ray<double>& ray)
 {
     //if hit the sphere, get that vector in the hit point
-    auto t = RayHitSphere(rtcr::Point3(0, 0, -1), 0.5, ray);
-    if (t > 0.0)
+    auto res = RayHitSphere(rtcr::Point3(0, 0, -1), 0.5, ray);
+    if (res > 0.0)
     {
         //then map that vector in function to a color from 0 to 1
-        auto n = rtcr::Vector3<double>::UnitVector(ray.At(t) - rtcr::Vector3<double>(0, 0, -1));
+        auto n = rtcr::Vector3<double>::UnitVector(ray.At(res) - rtcr::Vector3<double>(0, 0, -1));
         return 0.5 * rtcr::Color(n.GetX() + 1, n.GetY() + 1, n.GetZ() + 1);
     }
 
