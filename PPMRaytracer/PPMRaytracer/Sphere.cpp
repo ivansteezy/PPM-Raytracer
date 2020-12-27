@@ -44,6 +44,7 @@ bool rtcr::Sphere::Hit(const rtcr::Ray<double>& ray, double tMin, double tMax, H
 
 	rec.t = root;
 	rec.p = ray.At(rec.t);
-	rec.normal = (rec.p - m_center) / m_radius;
+	auto outNormal = (rec.p - m_center) / m_radius;
+	rec.SetFaceNormal(ray, outNormal);
 	return true;
 }

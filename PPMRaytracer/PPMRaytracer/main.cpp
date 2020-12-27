@@ -2,9 +2,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "Vector3.h"
+#include "HittableList.h"
+#include "Foundation.h"
+#include "Sphere.h"
 #include "Color.h"
-#include "Ray.h"
 
 
 double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<double>& ray)
@@ -18,15 +19,12 @@ double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<d
     return discriminant < 0 ? -1.0 : (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
 
-rtcr::Color MapRayColor(const rtcr::Ray<double>& ray)
+rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& world)
 {
-    //if hit the sphere, get that vector in the hit point
-    auto res = RayHitSphere(rtcr::Point3(0, 0, -1), 0.5, ray);
-    if (res > 0.0)
+    rtcr::HitRecord record;
+    if (world.Hit(ray, 0, infinity, record))
     {
-        //then map that vector in function to a color from 0 to 1
-        auto n = rtcr::Vector3<double>::UnitVector(ray.At(res) - rtcr::Vector3<double>(0, 0, -1));
-        return 0.5 * rtcr::Color(n.GetX() + 1, n.GetY() + 1, n.GetZ() + 1);
+        return 0.5 * (record.normal + rtcr::Color(1, 1, 1));
     }
 
     auto unitDirection = rtcr::Vector3<double>::UnitVector(ray.GetDirection());
@@ -39,6 +37,11 @@ int main()
     const auto aspectRatio   = 16.0 / 9.0;
     const double imageWidth  = 400;
     const double imageHeight = static_cast<int>(imageWidth / aspectRatio);      // podemos calcular la altura de la imagen dividendolo entre la relacion de aspecto
+
+    //World
+    rtcr::HittableList world;
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0, 0, -1), 0.5));
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0, -100.5, -1), 100));
 
     // Camera
     auto viewportHeight = 2.0;                                                  // altura de la visibilidad
@@ -60,7 +63,7 @@ int main()
             auto u = double(i) / (imageWidth - 1.0);
             auto v = double(j) / (imageHeight - 1.0);
             rtcr::Ray<double> r(origin, lowerLeftCorner + u * horizontal + v * vertical - origin); //rayo recibe un origen y una direccion, 
-            rtcr::Color pixel_color = MapRayColor(r);
+            rtcr::Color pixel_color = MapRayColor(r, world);
             rtcr::ColorPrinter::WriteColor(of, pixel_color);
         }
     }
