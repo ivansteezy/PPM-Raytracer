@@ -4,10 +4,10 @@
 
 #include "HittableList.h"
 #include "Foundation.h"
+#include "Vector3.h"
 #include "Camera.h"
 #include "Sphere.h"
 #include "Color.h"
-
 
 double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<double>& ray)
 {
@@ -20,25 +20,43 @@ double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<d
     return discriminant < 0 ? -1.0 : (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
 
-rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& world)
+rtcr::Vector3<double> RandomPointInUnitSphere() //maybe static in vector3 class
+{
+    while (true)
+    {
+        auto p = rtcr::Vector3<double>::GetRandomVector(-1, 1);
+        if (p.LengthSquared() >= 1) continue;
+        return p;
+    }
+}
+
+rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& world, int depth)
 {
     rtcr::HitRecord record;
+
+    if (depth <= 0)
+    {
+        return rtcr::Color(0.0, 0.0, 0.0);
+    }
+
     if (world.Hit(ray, 0, infinity, record))
     {
-        return 0.5 * (record.normal + rtcr::Color(1, 1, 1));
+        rtcr::Point3 target = record.p + record.normal + RandomPointInUnitSphere();
+        return 0.5 * MapRayColor(rtcr::Ray<double>(record.p, target - record.p), world, depth-1);
     }
 
     auto unitDirection = rtcr::Vector3<double>::UnitVector(ray.GetDirection());
     auto t = 0.5 * (unitDirection.GetY() + 1.0);
-    return (1.0 - t) * rtcr::Color(1.0, 1.0, 1.0) + (t * rtcr::Color(0.0, 0.0, 1.0));
+    return (1.0 - t) * rtcr::Color(1.0, 1.0, 1.0) + (t * rtcr::Color(0.5, 0.7, 1.0));
 }
 
 int main() 
 {
-    const auto aspectRatio   = 16.0 / 9.0;
-    const double imageWidth  = 800;
-    const double imageHeight = static_cast<int>(imageWidth / aspectRatio);      // podemos calcular la altura de la imagen dividendolo entre la relacion de aspecto
-    const int samplesPerPixel = 0;
+    const auto aspectRatio    = 16.0 / 9.0;
+    const double imageWidth   = 400;
+    const double imageHeight  = static_cast<int>(imageWidth / aspectRatio);      // podemos calcular la altura de la imagen dividendolo entre la relacion de aspecto
+    const int samplesPerPixel = 10;
+    const int maxStackDepth   = 50;
 
     //World
     rtcr::HittableList world;
@@ -54,7 +72,7 @@ int main()
 
     for (int j = imageHeight - 1; j >= 0; --j) 
     {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        std::cerr << "\rHorizontal Scanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < imageWidth; ++i)
         {
             rtcr::Color pixelColor(0, 0, 0);
@@ -63,12 +81,12 @@ int main()
                 auto u = (i + GenRandomNumber()) / (imageWidth - 1);
                 auto v = (j + GenRandomNumber()) / (imageHeight - 1);
                 auto ray = camera.GetRay(u, v);
-                pixelColor += MapRayColor(ray, world);
+                pixelColor += MapRayColor(ray, world, maxStackDepth);
             }
             rtcr::WriteColor(of, pixelColor, samplesPerPixel);
         }
     }
-    of.close();
 
     std::cout << "Done!" << std::endl;
+    of.close();
 }

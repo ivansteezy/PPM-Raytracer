@@ -6,6 +6,8 @@
 #include <ostream>
 #include <iostream>
 
+#include "Foundation.h"
+
 namespace rtcr
 {
 	template<typename T>
@@ -53,6 +55,16 @@ namespace rtcr
 		T LengthSquared() const
 		{
 			return (e[0] * e[0]) + (e[1] * e[1]) + (e[2] * e[2]);
+		}
+
+		inline static Vector3 GetRandomVector()
+		{
+			return Vector3(GenRandomNumber(), GenRandomNumber(), GenRandomNumber());
+		}
+
+		inline static Vector3 GetRandomVector(double min, double max)
+		{
+			return Vector3(GenRandomNumber(min, max), GenRandomNumber(min, max), GenRandomNumber(min, max));
 		}
 
 		friend inline std::ostream& operator<<(std::ofstream& out, const Vector3& vec)
@@ -116,5 +128,4 @@ namespace rtcr
 	using Point3 = Vector3<double>;
 	using Color  = Vector3<double>;
 }
-
 #endif
