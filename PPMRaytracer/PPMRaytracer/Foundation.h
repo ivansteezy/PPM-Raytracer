@@ -1,5 +1,5 @@
 #ifndef FOUNDATION_H
-#define FOUNTACION_H
+#define FOUNDATION_H
 
 #include <cmath>
 #include <limits>
@@ -24,6 +24,13 @@ constexpr double pi = std::numbers::pi;
 [[nodiscard]] inline double GenRandomNumber(double min, double max)
 {
 	return min + (max - min) * GenRandomNumber();
+}
+
+[[nodiscard]] inline double Clamp(double x, double min, double max)
+{
+	if (x < min) return min;
+	if (x > max) return max;
+	return x;
 }
 
 #include "Vector3.h"

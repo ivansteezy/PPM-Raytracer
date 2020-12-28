@@ -149,6 +149,7 @@
     <ClCompile Include="Sphere.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Foundation.h" />
     <ClInclude Include="Hittable.h" />

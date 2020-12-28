@@ -4,6 +4,7 @@
 
 #include "HittableList.h"
 #include "Foundation.h"
+#include "Camera.h"
 #include "Sphere.h"
 #include "Color.h"
 
@@ -35,8 +36,9 @@ rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& 
 int main() 
 {
     const auto aspectRatio   = 16.0 / 9.0;
-    const double imageWidth  = 400;
+    const double imageWidth  = 800;
     const double imageHeight = static_cast<int>(imageWidth / aspectRatio);      // podemos calcular la altura de la imagen dividendolo entre la relacion de aspecto
+    const int samplesPerPixel = 0;
 
     //World
     rtcr::HittableList world;
@@ -44,27 +46,26 @@ int main()
     world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0, -100.5, -1), 100));
 
     // Camera
-    auto viewportHeight = 2.0;                                                  // altura de la visibilidad
-    auto viewportWidth  = aspectRatio * viewportHeight;                         // anchura de la visibildad
-    auto focalLength    = 1.0;                                                  // distancia focal a travez de la cual se ve la imagen (zoom)
-
-    auto origin          = rtcr::Point3(0, 0, 0);                               // punto de origen de la camara
-    auto horizontal      = rtcr::Vector3<double>(viewportWidth, 0, 0);
-    auto vertical        = rtcr::Vector3<double>(0, viewportHeight, 0);
-    auto lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - rtcr::Vector3<double>(0, 0, focalLength);
+    rtcr::Camera camera;
 
     std::ofstream of;
-
     of.open("image.ppm", std::ios::app);
     of << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
-    for (int j = imageHeight - 1; j >= 0; --j) {
+
+    for (int j = imageHeight - 1; j >= 0; --j) 
+    {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < imageWidth; ++i)
         {
-            auto u = double(i) / (imageWidth - 1.0);
-            auto v = double(j) / (imageHeight - 1.0);
-            rtcr::Ray<double> r(origin, lowerLeftCorner + u * horizontal + v * vertical - origin); //rayo recibe un origen y una direccion, 
-            rtcr::Color pixel_color = MapRayColor(r, world);
-            rtcr::ColorPrinter::WriteColor(of, pixel_color);
+            rtcr::Color pixelColor(0, 0, 0);
+            for (int s = 0; s < samplesPerPixel; ++s)
+            {
+                auto u = (i + GenRandomNumber()) / (imageWidth - 1);
+                auto v = (j + GenRandomNumber()) / (imageHeight - 1);
+                auto ray = camera.GetRay(u, v);
+                pixelColor += MapRayColor(ray, world);
+            }
+            rtcr::WriteColor(of, pixelColor, samplesPerPixel);
         }
     }
     of.close();
