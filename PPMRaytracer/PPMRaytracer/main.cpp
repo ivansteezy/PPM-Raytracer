@@ -10,11 +10,11 @@
 
 double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<double>& ray)
 {
-    auto oc = ray.GetOrigin() - center;                                                  //in the equation (A-C)
-    auto a  = rtcr::Vector3<double>::DotProduct(ray.GetDirection(), ray.GetDirection()); //in the equation (b°b)
-    auto b  = 2.0 * rtcr::Vector3<double>::DotProduct(oc, ray.GetDirection());           //in the equation 2b ° (A-C)
-    auto c  = rtcr::Vector3<double>::DotProduct(oc, oc) - (radius * radius);             //in the equation (A-C)°(A-C) - r^2
-    auto discriminant = (b * b) - (4 * a * c);                                           //chicharronera
+    auto oc = ray.GetOrigin() - center;                                                  // in the equation (A-C)
+    auto a  = rtcr::Vector3<double>::DotProduct(ray.GetDirection(), ray.GetDirection()); // in the equation (b°b)
+    auto b  = 2.0 * rtcr::Vector3<double>::DotProduct(oc, ray.GetDirection());           // in the equation 2b ° (A-C)
+    auto c  = rtcr::Vector3<double>::DotProduct(oc, oc) - (radius * radius);             // in the equation (A-C)°(A-C) - r^2
+    auto discriminant = (b * b) - (4 * a * c);                                           // chicharronera
 
     return discriminant < 0 ? -1.0 : (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
@@ -45,10 +45,10 @@ int main()
 
     // Camera
     auto viewportHeight = 2.0;                                                  // altura de la visibilidad
-    auto viewportWidth  = aspectRatio * viewportHeight;                         //anchura de la visibildad
-    auto focalLength    = 1.0;                                                  //distancia focal a travez de la cual se ve la imagen (zoom)
+    auto viewportWidth  = aspectRatio * viewportHeight;                         // anchura de la visibildad
+    auto focalLength    = 1.0;                                                  // distancia focal a travez de la cual se ve la imagen (zoom)
 
-    auto origin          = rtcr::Point3(0, 0, 0);                               //punto de origen de la camara
+    auto origin          = rtcr::Point3(0, 0, 0);                               // punto de origen de la camara
     auto horizontal      = rtcr::Vector3<double>(viewportWidth, 0, 0);
     auto vertical        = rtcr::Vector3<double>(0, viewportHeight, 0);
     auto lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - rtcr::Vector3<double>(0, 0, focalLength);
