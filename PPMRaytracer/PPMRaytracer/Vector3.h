@@ -121,9 +121,37 @@ namespace rtcr
 			return (vec / vec.Length());
 		}
 
+		bool NearZero() const
+		{
+			// Return true if the vector is close to zero in all dimensions.
+			const auto s = 1e-8;
+			return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+		}
+
+		static rtcr::Vector3<double> RandomPointInUnitSphere() //maybe static in vector3 class
+		{
+			while (true)
+			{
+				auto p = rtcr::Vector3<double>::GetRandomVector(-1, 1);
+				if (p.LengthSquared() >= 1) continue;
+				return p;
+			}
+		}
+
+		static rtcr::Vector3<double> RandomUnitVector()
+		{
+			return rtcr::Vector3<double>::UnitVector(RandomPointInUnitSphere());
+		}
+
+		static rtcr::Vector3<double> Reflect(const rtcr::Vector3<double>& vec, const rtcr::Vector3<double>& n)
+		{
+			return vec - 2 * Vector3<double>::DotProduct(vec, n) * n;
+		}
+
 	public:
 		std::array<T, 3> e;
 	};
+
 
 	using Point3 = Vector3<double>;
 	using Color  = Vector3<double>;

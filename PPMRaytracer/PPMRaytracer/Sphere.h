@@ -1,8 +1,9 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "Hittable.h"
+#include "Material.h"
 #include "Vector3.h"
+#include "Ray.h"
 
 namespace rtcr
 {
@@ -10,7 +11,7 @@ namespace rtcr
 	{
 	public:
 		Sphere();
-		Sphere(rtcr::Point3 center, double radius);
+		Sphere(rtcr::Point3 center, double radius, MaterialPtr material);
 
 	public:
 		rtcr::Point3 GetCenter() const;
@@ -21,6 +22,7 @@ namespace rtcr
 	private:
 		rtcr::Point3 m_center;
 		double m_radius;
+		MaterialPtr m_material;
 	};
 }
 

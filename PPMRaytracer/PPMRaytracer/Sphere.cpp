@@ -4,9 +4,10 @@ rtcr::Sphere::Sphere()
 {
 }
 
-rtcr::Sphere::Sphere(rtcr::Point3 center, double radius) :
+rtcr::Sphere::Sphere(rtcr::Point3 center, double radius, MaterialPtr material) :
 	m_center(center),
-	m_radius(radius)
+	m_radius(radius),
+	m_material(material)
 {
 }
 
@@ -46,5 +47,6 @@ bool rtcr::Sphere::Hit(const rtcr::Ray<double>& ray, double tMin, double tMax, H
 	rec.p = ray.At(rec.t);
 	auto outNormal = (rec.p - m_center) / m_radius;
 	rec.SetFaceNormal(ray, outNormal);
+	rec.materialPtr = m_material;
 	return true;
 }

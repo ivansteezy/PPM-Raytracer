@@ -155,6 +155,7 @@
     <ClInclude Include="Foundation.h" />
     <ClInclude Include="Hittable.h" />
     <ClInclude Include="HittableList.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Vector3.h" />

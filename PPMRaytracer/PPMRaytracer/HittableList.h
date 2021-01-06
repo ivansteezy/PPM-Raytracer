@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "Hittable.h"
+#include "Material.h"
 
 namespace rtcr
 {

@@ -6,6 +6,7 @@
 #include <numbers>			// C++20 hypeee
 #include <random>
 
+#define interface struct
 constexpr double infinity = std::numeric_limits<double>::infinity();
 constexpr double pi = std::numbers::pi;
 

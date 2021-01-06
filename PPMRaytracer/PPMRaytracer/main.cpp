@@ -3,8 +3,8 @@
 #include <fstream>
 
 #include "HittableList.h"
-#include "Foundation.h"
-#include "Vector3.h"
+//#include "Material.h"
+// #include "Vector3.h"
 #include "Camera.h"
 #include "Sphere.h"
 #include "Color.h"
@@ -20,16 +20,6 @@ double RayHitSphere(const rtcr::Point3& center, double radius, const rtcr::Ray<d
     return discriminant < 0 ? -1.0 : (-b - std::sqrt(discriminant)) / (2.0 * a);
 }
 
-rtcr::Vector3<double> RandomPointInUnitSphere() //maybe static in vector3 class
-{
-    while (true)
-    {
-        auto p = rtcr::Vector3<double>::GetRandomVector(-1, 1);
-        if (p.LengthSquared() >= 1) continue;
-        return p;
-    }
-}
-
 rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& world, int depth)
 {
     rtcr::HitRecord record;
@@ -39,10 +29,17 @@ rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& 
         return rtcr::Color(0.0, 0.0, 0.0);
     }
 
-    if (world.Hit(ray, 0, infinity, record))
+    if (world.Hit(ray, 0.001, infinity, record))
     {
-        rtcr::Point3 target = record.p + record.normal + RandomPointInUnitSphere();
-        return 0.5 * MapRayColor(rtcr::Ray<double>(record.p, target - record.p), world, depth-1);
+        /*rtcr::Point3 target = record.p + record.normal + rtcr::RandomUnitVector();
+        return 0.5 * MapRayColor(rtcr::Ray<double>(record.p, target - record.p), world, depth-1);*/
+
+        rtcr::Ray<double> scattered;
+        rtcr::Color attenuation;
+
+        if (record.materialPtr->Scatter(ray, record, attenuation, scattered))
+            return attenuation * MapRayColor(scattered, world, depth - 1);
+        return rtcr::Color(0.0, 0.0, 0.0);
     }
 
     auto unitDirection = rtcr::Vector3<double>::UnitVector(ray.GetDirection());
@@ -53,15 +50,23 @@ rtcr::Color MapRayColor(const rtcr::Ray<double>& ray, const rtcr::HittableList& 
 int main() 
 {
     const auto aspectRatio    = 16.0 / 9.0;
-    const double imageWidth   = 400;
+    const double imageWidth   = 1024;
     const double imageHeight  = static_cast<int>(imageWidth / aspectRatio);      // podemos calcular la altura de la imagen dividendolo entre la relacion de aspecto
-    const int samplesPerPixel = 10;
+    const int samplesPerPixel = 20;
     const int maxStackDepth   = 50;
 
     //World
     rtcr::HittableList world;
-    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0, 0, -1), 0.5));
-    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0, -100.5, -1), 100));
+    
+    auto material_ground = std::make_shared<rtcr::Lambertian>(rtcr::Color(0.8, 0.8, 0.0));
+    auto material_center = std::make_shared<rtcr::Lambertian>(rtcr::Color(0.7, 0.3, 0.3));
+    auto material_left   = std::make_shared<rtcr::Metal>(rtcr::Color(0.8, 0.8, 0.8));
+    auto material_right  = std::make_shared<rtcr::Metal>(rtcr::Color(0.8, 0.6, 0.2));
+
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0.0, -100.5, -1.0), 100.0, material_ground));
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(0.0, 0.0, -1.0), 0.5, material_center));
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(-1.0, 0.0, -1.0), 0.5, material_left));
+    world.Add(std::make_shared<rtcr::Sphere>(rtcr::Point3(1.0, 0.0, -1.0), 0.5, material_right));
 
     // Camera
     rtcr::Camera camera;
